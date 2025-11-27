@@ -15,7 +15,7 @@ exports.issueToken = async (req, res) => {
   if (!clientId || !clientSecret) {
     return res.status(400).json({
       error: "invalid_client",
-      error_description: "client_id and client_secret are required"
+      error_description: "client_id and client_secret are required",
     });
   }
   if (grantType !== "client_credentials") {
@@ -34,7 +34,7 @@ exports.issueToken = async (req, res) => {
         access_token: token,
         token_type: "Bearer",
         expires_in: ttlSec,
-        scope: scopeIn
+        scope: scopeIn,
       });
     }
 
@@ -52,8 +52,8 @@ exports.issueToken = async (req, res) => {
         tokenRotations: 1,
         nextTokenTtlSeconds: 1,
         tokenType: 1,
-        scope: 1
-      }
+        scope: 1,
+      },
     };
 
     let doc = await coll.findOne({ clientId, clientSecret }, proj);
@@ -64,8 +64,8 @@ exports.issueToken = async (req, res) => {
           $setOnInsert: {
             createdAt: asIso(now),
             tokenType: "Bearer",
-            scope: scopeIn
-          }
+            scope: scopeIn,
+          },
         },
         { upsert: true }
       );
@@ -81,7 +81,8 @@ exports.issueToken = async (req, res) => {
 
     // Reuse if still valid
     const expMs = doc?.tokenExpiresAt ? Date.parse(doc.tokenExpiresAt) : 0;
-    const stillValid = doc?.currentToken && Number.isFinite(expMs) && now < expMs;
+    const stillValid =
+      doc?.currentToken && Number.isFinite(expMs) && now < expMs;
 
     if (stillValid) {
       const remaining = Math.max(1, Math.floor((expMs - now) / 1000));
@@ -89,39 +90,37 @@ exports.issueToken = async (req, res) => {
         access_token: doc.currentToken,
         token_type: doc.tokenType || "Bearer",
         expires_in: remaining,
-        scope: doc.scope || scopeIn
+        scope: doc.scope || scopeIn,
       });
     }
 
     // Rotate / first issue
     const ttlCandidate = doc?.nextTokenTtlSeconds;
-    const ttlSec = Number.isFinite(ttlCandidate) && ttlCandidate > 0 ? ttlCandidate : 120;
+    const ttlSec =
+      Number.isFinite(ttlCandidate) && ttlCandidate > 0 ? ttlCandidate : 120;
     const newToken = crypto.randomBytes(32).toString("base64url");
     const newExpIso = asIso(now + ttlSec * 1000);
 
     // 1) Deactivate *all* previous tokens (robust across environments)
-    await coll.updateOne(
-      { clientId, clientSecret },
-      [
-        {
-          $set: {
-            issuedTokens: {
-              $cond: [
-                { $isArray: "$issuedTokens" },
-                {
-                  $map: {
-                    input: "$issuedTokens",
-                    as: "t",
-                    in: { $mergeObjects: ["$$t", { active: false }] }
-                  }
+    await coll.updateOne({ clientId, clientSecret }, [
+      {
+        $set: {
+          issuedTokens: {
+            $cond: [
+              { $isArray: "$issuedTokens" },
+              {
+                $map: {
+                  input: "$issuedTokens",
+                  as: "t",
+                  in: { $mergeObjects: ["$$t", { active: false }] },
                 },
-                []
-              ]
-            }
-          }
-        }
-      ]
-    );
+              },
+              [],
+            ],
+          },
+        },
+      },
+    ]);
 
     // 2) Set the new active token
     await coll.updateOne(
@@ -131,7 +130,7 @@ exports.issueToken = async (req, res) => {
           currentToken: newToken,
           tokenExpiresAt: newExpIso,
           tokenType: "Bearer",
-          scope: scopeIn
+          scope: scopeIn,
         },
         $inc: { tokenRotations: 1 },
         $push: {
@@ -139,9 +138,9 @@ exports.issueToken = async (req, res) => {
             token: newToken,
             issuedAt: asIso(now),
             expiresAt: newExpIso,
-            active: true
-          }
-        }
+            active: true,
+          },
+        },
       },
       { upsert: true }
     );
@@ -150,7 +149,7 @@ exports.issueToken = async (req, res) => {
       access_token: newToken,
       token_type: "Bearer",
       expires_in: ttlSec,
-      scope: scopeIn
+      scope: scopeIn,
     });
   } catch (e) {
     console.error("issueToken failed:", e.message);
