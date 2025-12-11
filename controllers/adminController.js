@@ -192,7 +192,7 @@ exports.tokens = async (req, res) => {
       issuedTokens: tokens
     });
   } catch (err) {
-    console.error("admin.tokens failed:", err.message);
+    console.error("admin.tokens failed. please retry:", err.message);
     return res.status(500).json({ error: err.message || String(err) });
   }
 };
