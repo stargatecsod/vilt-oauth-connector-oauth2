@@ -30,8 +30,7 @@ exports.reset = async (req, res) => {
       { 
         $set: {
           clientId,
-          clientSecret,
-           nextTokenTtlSeconds
+          clientSecret
         },
         $unset: {
           tokenHits: "",
