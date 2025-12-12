@@ -97,12 +97,6 @@ async function validateBearerToken(req, res) {
       return null;
     }
 
-    if (token !== client.currentToken) {
-      // Old/rotated token
-      res.status(401).json(err(req, 40104, "invalid_token"));
-      return null;
-    }
-
     return { db, coll, client };
   } catch (e) {
     console.error("validateBearerToken failed:", e);
@@ -369,9 +363,6 @@ exports.updateInstructor = async (req, res) => {
 exports.getAttendance = async (req, res) => {
   const ctx = await validateBearerToken(req, res);
   if (!ctx) return;
-
-  // Handle LoId query parameter
-  const loId = req.query.LoId;
   
   //This condition added to handle basic auth
   if (ctx != 1) {
@@ -403,11 +394,6 @@ exports.launchSession = async (req, res) => {
   const ctx = await validateBearerToken(req, res);
   if (!ctx) return;
 
-  // Handle query parameters
-  const firstName = req.query.FirstName;
-  const lastName = req.query.LastName;
-  const loId = req.query.LoId;
-  
   //This condition added to handle basic auth
   if (ctx != 1) {
     const { coll, client } = ctx;

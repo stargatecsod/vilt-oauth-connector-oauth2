@@ -39,7 +39,9 @@ exports.reset = async (req, res) => {
           perEndpointUsage: "",
           currentToken: "",
           issuedTokens: "",
-          sessions: ""
+          sessions: "",
+          instructors: "",
+          lastSessionId: ""
         }
       }
     );
