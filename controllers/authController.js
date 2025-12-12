@@ -117,9 +117,9 @@ exports.issueToken = async (req, res) => {
               { $isArray: "$issuedTokens" },
               {
                 $map: {
-                  input: "$issuedTokens",
+                  input: "$issuedTokens", 
                   as: "t",
-                  in: { $mergeObjects: ["$t", { active: false }] },
+                  in: { $mergeObjects: ["$$t", { active: false }] },
                 },
               },
               [],
@@ -128,7 +128,6 @@ exports.issueToken = async (req, res) => {
         },
       },
     ]);
-
     // 2) Set the new active token
     await coll.updateOne(
       { clientId, clientSecret },
