@@ -38,6 +38,7 @@ app.put("/api/instructor", protectedController.updateInstructor);
 
 // Attendance and launch endpoints
 app.get("/api/session/:SessionId/attendees", protectedController.getAttendance);
+app.get("/api/session/:SessionId/extendedoptions", protectedController.getExtendedOptions);
 app.get(
   "/api/session/:SessionId/user/:base64EncodedEmail/url",
   protectedController.launchSession

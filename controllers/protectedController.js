@@ -36,12 +36,14 @@ function okAttendance(req, status = "success") {
 }
 
 function okLaunchSession(req, status = "success") {
+  // This format allows anonymous users to join 
+  const publicTeamsUrl = `https://teams.microsoft.com/meet/26774560933895?p=O0H4eRZnY6HDk5EQIV`;
   return {
     status,
     correlationId: getCorrelationId(req),
     timestamp: nowIso(),
     data: {
-      joinUrl: "https://example.com/session/join",
+      joinUrl: publicTeamsUrl,
     },
   };
 }
@@ -414,4 +416,111 @@ exports.launchSession = async (req, res) => {
   }
   
   res.status(200).json(okLaunchSession(req, "success"));
+};
+function okExtendedOptions(req, status = "success") {
+  return {
+    status,
+    correlationId: getCorrelationId(req),
+    timestamp: nowIso(),
+    data: {
+      extendedOptions: [
+        {
+          Type: "text",
+          Id: "option_1",
+          ParentId: null,
+          Name: "Meeting Title",
+          Description: "Custom title for the virtual meeting",
+          Placeholder: "Enter meeting title",
+          Value: "",
+          IsNameVisible: true,
+          IsMultiline: false,
+          IsChecked: false,
+          ChildExtendedOption: []
+        },
+        {
+          Type: "checkbox",
+          Id: "option_2",
+          ParentId: null,
+          Name: "Enable Recording",
+          Description: "Automatically record the session",
+          Placeholder: "",
+          Value: "true",
+          IsNameVisible: true,
+          IsMultiline: false,
+          IsChecked: false,
+          ChildExtendedOption: ["option_3"]
+        },
+        {
+          Type: "select",
+          Id: "option_3",
+          ParentId: "option_2",
+          Name: "Recording Quality",
+          Description: "Select recording quality",
+          Placeholder: "Choose quality",
+          Value: "HD",
+          IsNameVisible: true,
+          IsMultiline: false,
+          IsChecked: false,
+          ChildExtendedOption: []
+        }
+      ]
+    },
+  };
+}
+
+/**
+ * GET /api/session/{SessionId}/extendedoptions
+ * Headers: debug (boolean, optional, default: false)
+ * 200: { status, correlationId, timestamp, data: { extendedOptions: [...] } }
+ */
+exports.getExtendedOptions = async (req, res) => {
+  const ctx = await validateBearerToken(req, res);
+  if (!ctx) return;
+
+  const sessionId = req.params.SessionId && String(req.params.SessionId).trim();
+  if (!sessionId) {
+    return res.status(400).json(err(req, 40040, "SessionId is required"));
+  }
+
+  // Get debug header (optional)
+  const debug = req.headers.debug === 'true' || req.headers.debug === true;
+  
+  try {
+    // If ctx is not 1 (not using Basic auth), update the database
+    if (ctx !== 1) {
+      const { coll, client } = ctx;
+      
+      // Check if session exists
+      const clientDoc = await coll.findOne({
+        clientId: client.clientId,
+        clientSecret: client.clientSecret,
+        "sessions.sessionId": sessionId,
+      });
+
+      if (!clientDoc) {
+        return res.status(404).json(err(req, 40440, "session_not_found"));
+      }
+
+      // Update usage metrics
+      await coll.updateOne(
+        { clientId: client.clientId, clientSecret: client.clientSecret },
+        {
+          $inc: { "perEndpointUsage.getextendedoptions": 1 },
+          $set: { 
+            lastExtendedOptionsRequest: {
+              sessionId,
+              debug,
+              timestamp: nowIso()
+            }
+          }
+        },
+        { upsert: true }
+      );
+    }
+    
+    res.status(200).json(okExtendedOptions(req, "success"));
+  } catch (e) {
+    console.error("getExtendedOptions failed:", e);
+    res.status(500).json(err(req, 50015, "get_extended_options_failed"));
+  }
 };
