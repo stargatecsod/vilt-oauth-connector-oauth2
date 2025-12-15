@@ -36,12 +36,14 @@ function okAttendance(req, status = "success") {
 }
 
 function okLaunchSession(req, status = "success") {
+  // This format allows anonymous users to join 
+  const publicTeamsUrl = `https://teams.microsoft.com/meet/26774560933895?p=O0H4eRZnY6HDk5EQIV`;
   return {
     status,
     correlationId: getCorrelationId(req),
     timestamp: nowIso(),
     data: {
-      joinUrl: "https://example.com/session/join",
+      joinUrl: publicTeamsUrl,
     },
   };
 }
