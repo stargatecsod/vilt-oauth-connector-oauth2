@@ -425,43 +425,57 @@ function okExtendedOptions(req, status = "success") {
     data: {
       extendedOptions: [
         {
-          Type: "CheckBox",
+          Type: "Label",
           Id: "1",
           ParentId: null,
-          Name: "Enable Camera",
-          Description: "Allow camera access",
+          Name: "Session Extended Options",
+          Description: null,
           Placeholder: null,
           Value: null,
-          IsNameVisible: true,
-          IsMultiline: false,
-          IsChecked: true,
-          ChildExtendedOption: []
-        },
-        {
-          Type: "CheckBox",
-          Id: "2",
-          ParentId: null,
-          Name: "Enable Microphone",
-          Description: "Allow microphone access",
-          Placeholder: null,
-          Value: null,
-          IsNameVisible: true,
-          IsMultiline: false,
-          IsChecked: true,
-          ChildExtendedOption: []
-        },
-        {
-          Type: "CheckBox",
-          Id: "3",
-          ParentId: null,
-          Name: "Record Session",
-          Description: "Automatically record the meeting",
-          Placeholder: null,
-          Value: null,
-          IsNameVisible: true,
+          IsNameVisible: true,  // Required to be true for root Label
           IsMultiline: false,
           IsChecked: false,
-          ChildExtendedOption: []
+          ChildExtendedOption: [
+            {
+              Type: "CheckBox",
+              Id: "2",
+              ParentId: "1",
+              Name: "Enable Camera",
+              Description: "Allow camera access",
+              Placeholder: null,
+              Value: null,
+              IsNameVisible: true,
+              IsMultiline: false,
+              IsChecked: true,
+              ChildExtendedOption: []
+            },
+            {
+              Type: "CheckBox",
+              Id: "3",
+              ParentId: "1",
+              Name: "Enable Microphone",
+              Description: "Allow microphone access",
+              Placeholder: null,
+              Value: null,
+              IsNameVisible: true,
+              IsMultiline: false,
+              IsChecked: true,
+              ChildExtendedOption: []
+            },
+            {
+              Type: "CheckBox",
+              Id: "4",
+              ParentId: "1",
+              Name: "Record Session",
+              Description: "Automatically record the meeting",
+              Placeholder: null,
+              Value: null,
+              IsNameVisible: true,
+              IsMultiline: false,
+              IsChecked: false,
+              ChildExtendedOption: []
+            }
+          ]
         }
       ]
     },
