@@ -432,53 +432,53 @@ function okExtendedOptions(req, status = "success") {
           Description: null,
           Placeholder: null,
           Value: null,
-          IsNameVisible: true,  // Required to be true for root Label
+          IsNameVisible: true,
           IsMultiline: false,
           IsChecked: false,
-          ChildExtendedOption: [
+          ChildExtendedOptions: [
             {
               Type: "CheckBox",
               Id: "2",
               ParentId: "1",
-              Name: "Enable Camera",
-              Description: "Allow camera access",
+              Name: "Allow Attendee To Enable Camera",
+              Description: null,
               Placeholder: null,
               Value: null,
               IsNameVisible: true,
               IsMultiline: false,
               IsChecked: true,
-              ChildExtendedOption: []
+              ChildExtendedOptions: []
             },
             {
               Type: "CheckBox",
               Id: "3",
               ParentId: "1",
-              Name: "Enable Microphone",
-              Description: "Allow microphone access",
+              Name: "Allow Attendee To Enable Mic",
+              Description: null,
               Placeholder: null,
               Value: null,
               IsNameVisible: true,
               IsMultiline: false,
               IsChecked: true,
-              ChildExtendedOption: []
+              ChildExtendedOptions: []
             },
             {
               Type: "CheckBox",
               Id: "4",
               ParentId: "1",
-              Name: "Record Session",
-              Description: "Automatically record the meeting",
+              Name: "Record Automatically",
+              Description: null,
               Placeholder: null,
               Value: null,
               IsNameVisible: true,
               IsMultiline: false,
               IsChecked: false,
-              ChildExtendedOption: []
+              ChildExtendedOptions: []
             }
           ]
         }
       ]
-    },
+    }
   };
 }
 
