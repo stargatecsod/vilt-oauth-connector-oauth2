@@ -371,7 +371,6 @@ exports.getAttendance = async (req, res) => {
     const { coll, client } = ctx;
 
     try {
-      // You could add database operations here if needed
       await coll.updateOne(
         { clientId: client.clientId, clientSecret: client.clientSecret },
         {
@@ -401,7 +400,6 @@ exports.launchSession = async (req, res) => {
     const { coll, client } = ctx;
 
     try {
-      // You could add database operations here if needed
       await coll.updateOne(
         { clientId: client.clientId, clientSecret: client.clientSecret },
         {
@@ -491,50 +489,24 @@ exports.getExtendedOptions = async (req, res) => {
   const ctx = await validateBearerToken(req, res);
   if (!ctx) return;
 
-  const sessionId = req.params.SessionId && String(req.params.SessionId).trim();
-  if (!sessionId) {
-    return res.status(400).json(err(req, 40040, "SessionId is required"));
-  }
+  if (ctx !== 1) {
+    const { coll, client } = ctx;
 
-  // Get debug header (optional)
-  const debug = req.headers.debug === 'true' || req.headers.debug === true;
-  
-  try {
-    // If ctx is not 1 (not using Basic auth), update the database
-    if (ctx !== 1) {
-      const { coll, client } = ctx;
-      
-      // Check if session exists
-      const clientDoc = await coll.findOne({
-        clientId: client.clientId,
-        clientSecret: client.clientSecret,
-        "sessions.sessionId": sessionId,
-      });
-
-      if (!clientDoc) {
-        return res.status(404).json(err(req, 40440, "session_not_found"));
-      }
-
-      // Update usage metrics
+    try {
+      // Just increment usage counter - no session validation
       await coll.updateOne(
         { clientId: client.clientId, clientSecret: client.clientSecret },
         {
           $inc: { "perEndpointUsage.getextendedoptions": 1 },
-          $set: { 
-            lastExtendedOptionsRequest: {
-              sessionId,
-              debug,
-              timestamp: nowIso()
-            }
-          }
         },
         { upsert: true }
       );
+    } catch (e) {
+      console.error("getExtendedOptions DB operation failed:", e);
+      // Continue anyway for this endpoint
     }
-    
-    res.status(200).json(okExtendedOptions(req, "success"));
-  } catch (e) {
-    console.error("getExtendedOptions failed:", e);
-    res.status(500).json(err(req, 50015, "get_extended_options_failed"));
   }
+
+  // Always return the same hardcoded response regardless of session existence
+  res.status(200).json(okExtendedOptions(req, "success"));
 };
