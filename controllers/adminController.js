@@ -8,18 +8,21 @@ function param(req, name) {
 
 // POST /admin/reset
 // Body or query: client_id, client_secret
+// Reset all values except clientId/clientSecret in mongo db
 exports.reset = async (req, res) => {
   const clientId = param(req, "client_id");
   const clientSecret = param(req, "client_secret");
   if (!clientId || !clientSecret) {
-    return res.status(400).json({ error: "client_id and client_secret are required" });
+    return res
+      .status(400)
+      .json({ error: "client_id and client_secret are required" });
   }
 
   try {
     if (!process.env.MONGODB_URI) {
       return res.status(200).json({
         message: "MongoDB not configured; nothing to reset.",
-        client_id: clientId
+        client_id: clientId,
       });
     }
 
@@ -27,10 +30,10 @@ exports.reset = async (req, res) => {
     //update the document to keep only clientId, clientSecret
     const result = await db.collection("clients").updateOne(
       { clientId, clientSecret },
-      { 
+      {
         $set: {
           clientId,
-          clientSecret
+          clientSecret,
         },
         $unset: {
           tokenHits: "",
@@ -41,18 +44,20 @@ exports.reset = async (req, res) => {
           issuedTokens: "",
           sessions: "",
           instructors: "",
-          lastSessionId: ""
-        }
+          lastSessionId: "",
+        },
       }
     );
 
     return res.status(200).json({
       message: result.matchedCount > 0 ? "reset ok" : "no data to reset",
-      client_id: clientId
+      client_id: clientId,
     });
   } catch (err) {
     console.error("admin.reset failed:", err.message);
-    return res.status(500).json({ error: "Reset failed", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Reset failed", details: err.message });
   }
 };
 
@@ -62,14 +67,16 @@ exports.metrics = async (req, res) => {
   const clientId = param(req, "client_id");
   const clientSecret = param(req, "client_secret");
   if (!clientId || !clientSecret) {
-    return res.status(400).json({ error: "client_id and client_secret are required" });
+    return res
+      .status(400)
+      .json({ error: "client_id and client_secret are required" });
   }
- 
+
   try {
     if (!process.env.MONGODB_URI) {
-     return res.status(200).json({
+      return res.status(200).json({
         message: "MongoDB not configured; no metrics.",
-        client_id: clientId
+        client_id: clientId,
       });
     }
 
@@ -81,7 +88,7 @@ exports.metrics = async (req, res) => {
           clientId: 1,
           perEndpointUsage: 1,
           nextTokenTtlSeconds: 1,
-        }
+        },
       }
     );
 
@@ -94,7 +101,9 @@ exports.metrics = async (req, res) => {
     return res.status(200).json(doc);
   } catch (err) {
     console.error("admin.metrics failed:", err.message);
-    return res.status(500).json({ error: "Metrics failed", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Metrics failed", details: err.message });
   }
 };
 
@@ -106,7 +115,9 @@ exports.config = async (req, res) => {
   const clientSecret = param(req, "client_secret");
   const ttl = Number(param(req, "ttlSeconds"));
   if (!clientId || !clientSecret) {
-    return res.status(400).json({ error: "client_id and client_secret are required" });
+    return res
+      .status(400)
+      .json({ error: "client_id and client_secret are required" });
   }
   if (!Number.isFinite(ttl) || ttl <= 0) {
     return res.status(400).json({ error: "ttlSeconds must be > 0" });
@@ -117,21 +128,27 @@ exports.config = async (req, res) => {
       return res.status(200).json({
         message: "MongoDB not configured; config ignored.",
         client_id: clientId,
-        ttlSeconds: ttl
+        ttlSeconds: ttl,
       });
     }
 
     const db = await getDb();
-    await db.collection("clients").updateOne(
-      { clientId, clientSecret },
-      { $set: { nextTokenTtlSeconds: ttl } },
-      { upsert: true }
-    );
+    await db
+      .collection("clients")
+      .updateOne(
+        { clientId, clientSecret },
+        { $set: { nextTokenTtlSeconds: ttl } },
+        { upsert: true }
+      );
 
-    return res.status(200).json({ message: "config ok", client_id: clientId, ttlSeconds: ttl });
+    return res
+      .status(200)
+      .json({ message: "config ok", client_id: clientId, ttlSeconds: ttl });
   } catch (err) {
     console.error("admin.config failed:", err.message);
-    return res.status(500).json({ error: "Config failed", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Config failed", details: err.message });
   }
 };
 
@@ -141,7 +158,9 @@ exports.tokens = async (req, res) => {
   const clientId = param(req, "client_id");
   const clientSecret = param(req, "client_secret");
   if (!clientId || !clientSecret) {
-    return res.status(400).json({ error: "client_id and client_secret are required" });
+    return res
+      .status(400)
+      .json({ error: "client_id and client_secret are required" });
   }
 
   try {
@@ -157,8 +176,8 @@ exports.tokens = async (req, res) => {
           currentToken: 1,
           tokenExpiresAt: 1,
           tokenRotations: 1,
-          tokenHits: 1
-        }
+          tokenHits: 1,
+        },
       }
     );
 
@@ -170,7 +189,7 @@ exports.tokens = async (req, res) => {
         currentToken: null,
         tokenExpiresAt: null,
         count: 0,
-        issuedTokens: []
+        issuedTokens: [],
       });
     }
 
@@ -179,8 +198,8 @@ exports.tokens = async (req, res) => {
       token: t.token,
       issuedAt: t.issuedAt,
       expiresAt: t.expiresAt,
-      active: t.active === true,                    // if present
-      isCurrent: doc.currentToken === t.token
+      active: t.active === true, // if present
+      isCurrent: doc.currentToken === t.token,
     }));
 
     return res.status(200).json({
@@ -190,7 +209,7 @@ exports.tokens = async (req, res) => {
       currentToken: doc.currentToken || null,
       tokenExpiresAt: doc.tokenExpiresAt || null,
       count: tokens.length,
-      issuedTokens: tokens
+      issuedTokens: tokens,
     });
   } catch (err) {
     console.error("admin.tokens failed. please retry:", err.message);
