@@ -13,14 +13,14 @@ function uuid() {
 }
 
 function getCorrelationId(req) {
-  return req.headers['correlationid'] || uuid();
+  return req.headers["correlationid"] || uuid();
 }
 
 function ok(req, status = "success") {
-  return { 
-    status, 
-    correlationId: getCorrelationId(req), 
-    timestamp: nowIso() 
+  return {
+    status,
+    correlationId: getCorrelationId(req),
+    timestamp: nowIso()
   };
 }
 
@@ -36,7 +36,7 @@ function okAttendance(req, status = "success") {
 }
 
 function okLaunchSession(req, status = "success") {
-  // This format allows anonymous users to join 
+  // This format allows anonymous users to join
   const publicTeamsUrl = `https://teams.microsoft.com/meet/26774560933895?p=O0H4eRZnY6HDk5EQIV`;
   return {
     status,
@@ -83,6 +83,14 @@ async function validateBearerToken(req, res) {
   }
   const token = auth.slice("Bearer ".length).trim();
 
+  // Hardcoded token for load testing
+  if (
+    token === "HKWjGyT3CthKw8jFqxrYIsdeJ2yL2PkQECEoK2BW0VU" ||
+    token === "loadtest_token_12345"
+  ) {
+    return 1;
+  }
+
   try {
     const db = await getDb();
     const coll = db.collection("clients");
@@ -91,6 +99,17 @@ async function validateBearerToken(req, res) {
     if (!client || !client.currentToken) {
       res.status(401).json(err(req, 40102, "invalid_token"));
       return null;
+    }
+
+    // Check if client has loadtesting in clientId or clientSecret
+    const hasLoadTesting =
+      (client.clientId &&
+        client.clientId.toLowerCase().includes("loadtesting")) ||
+      (client.clientSecret &&
+        client.clientSecret.toLowerCase().includes("loadtesting"));
+
+    if (hasLoadTesting) {
+      return 1;
     }
 
     const expMs = client.tokenExpiresAt ? Date.parse(client.tokenExpiresAt) : 0;
@@ -266,10 +285,12 @@ exports.addInstructor = async (req, res) => {
   if (!ctx) return;
 
   const body = req.body || {};
-  
+
   // Validate required fields
   if (!body.Email || !body.FirstName || !body.LastName) {
-    return res.status(400).json(err(req, 40030, "Email, FirstName, and LastName are required"));
+    return res
+      .status(400)
+      .json(err(req, 40030, "Email, FirstName, and LastName are required"));
   }
 
   try {
@@ -298,7 +319,7 @@ exports.addInstructor = async (req, res) => {
         { upsert: true }
       );
     }
-    
+
     res.status(200).json(ok(req, "success"));
   } catch (e) {
     console.error("addInstructor failed:", e);
@@ -316,17 +337,31 @@ exports.updateInstructor = async (req, res) => {
   if (!ctx) return;
 
   const body = req.body || {};
-  
+
   // Validate required fields
-  if (!body.OldEmail || !body.NewEmail || !body.FirstName || !body.LastName || body.IsActive === undefined) {
-    return res.status(400).json(err(req, 40031, "OldEmail, NewEmail, FirstName, LastName, and IsActive are required"));
+  if (
+    !body.OldEmail ||
+    !body.NewEmail ||
+    !body.FirstName ||
+    !body.LastName ||
+    body.IsActive === undefined
+  ) {
+    return res
+      .status(400)
+      .json(
+        err(
+          req,
+          40031,
+          "OldEmail, NewEmail, FirstName, LastName, and IsActive are required"
+        ),
+      );
   }
 
   try {
     // If ctx is not 1 (not using Basic auth), update the database
     if (ctx !== 1) {
       const { coll, client } = ctx;
-      
+
       const result = await coll.updateOne(
         {
           clientId: client.clientId,
@@ -350,7 +385,7 @@ exports.updateInstructor = async (req, res) => {
         return res.status(404).json(err(req, 40430, "instructor_not_found"));
       }
     }
-    
+
     res.status(200).json(ok(req, "success"));
   } catch (e) {
     console.error("updateInstructor failed:", e);
@@ -365,7 +400,7 @@ exports.updateInstructor = async (req, res) => {
 exports.getAttendance = async (req, res) => {
   const ctx = await validateBearerToken(req, res);
   if (!ctx) return;
-  
+
   //This condition added to handle basic auth
   if (ctx != 1) {
     const { coll, client } = ctx;
@@ -383,7 +418,7 @@ exports.getAttendance = async (req, res) => {
       // Continue anyway for this endpoint
     }
   }
-  
+
   res.status(200).json(okAttendance(req, "success"));
 };
 
@@ -412,7 +447,7 @@ exports.launchSession = async (req, res) => {
       // Continue anyway for this endpoint
     }
   }
-  
+
   res.status(200).json(okLaunchSession(req, "success"));
 };
 function okExtendedOptions(req, status = "success") {
