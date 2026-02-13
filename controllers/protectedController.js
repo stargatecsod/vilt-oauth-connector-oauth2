@@ -184,9 +184,9 @@ exports.updateSession = async (req, res) => {
   if (!ctx) return;
 
   const sessionId = req.params.SessionId && String(req.params.SessionId).trim();
-  if (!sessionId) {
-    return res.status(400).json(err(req, 40010, "SessionId is required"));
-  }
+  // if (!sessionId) {
+  //   return res.status(400).json(err(req, 40010, "SessionId is required"));
+  // }
 
   //This condition added to handle basic auth
   if (ctx != 1) {
@@ -287,11 +287,11 @@ exports.addInstructor = async (req, res) => {
   const body = req.body || {};
 
   // Validate required fields
-  if (!body.Email || !body.FirstName || !body.LastName) {
-    return res
-      .status(400)
-      .json(err(req, 40030, "Email, FirstName, and LastName are required"));
-  }
+  // if (!body.Email || !body.FirstName || !body.LastName) {
+  //   return res
+  //     .status(400)
+  //     .json(err(req, 40030, "Email, FirstName, and LastName are required"));
+  // }
 
   try {
     // If ctx is not 1 (not using Basic auth), update the database
@@ -339,23 +339,23 @@ exports.updateInstructor = async (req, res) => {
   const body = req.body || {};
 
   // Validate required fields
-  if (
-    !body.OldEmail ||
-    !body.NewEmail ||
-    !body.FirstName ||
-    !body.LastName ||
-    body.IsActive === undefined
-  ) {
-    return res
-      .status(400)
-      .json(
-        err(
-          req,
-          40031,
-          "OldEmail, NewEmail, FirstName, LastName, and IsActive are required"
-        ),
-      );
-  }
+  // if (
+  //   !body.OldEmail ||
+  //   !body.NewEmail ||
+  //   !body.FirstName ||
+  //   !body.LastName ||
+  //   body.IsActive === undefined
+  // ) {
+  //   return res
+  //     .status(400)
+  //     .json(
+  //       err(
+  //         req,
+  //         40031,
+  //         "OldEmail, NewEmail, FirstName, LastName, and IsActive are required"
+  //       ),
+  //     );
+  // }
 
   try {
     // If ctx is not 1 (not using Basic auth), update the database
