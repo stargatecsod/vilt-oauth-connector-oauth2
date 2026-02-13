@@ -210,9 +210,9 @@ exports.updateSession = async (req, res) => {
         }
       );
 
-      if (result.matchedCount === 0) {
-        return res.status(404).json(err(req, 40410, "session_not_found"));
-      }
+      // if (result.matchedCount === 0) {
+      //   return res.status(404).json(err(req, 40410, "session_not_found"));
+      // }
 
       res.status(200).json(ok(req, "success"));
     } catch (e) {
