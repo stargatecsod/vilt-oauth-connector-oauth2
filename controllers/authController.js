@@ -82,18 +82,23 @@ exports.issueToken = async (req, res) => {
 
     let doc = await coll.findOne({ clientId, clientSecret }, proj);
     if (!doc) {
-      await coll.updateOne(
-        { clientId, clientSecret },
-        {
-          $setOnInsert: {
-            createdAt: asIso(now),
-            tokenType: "Bearer",
-            scope: scopeIn,
-          },
-        },
-        { upsert: true }
-      );
-      doc = await coll.findOne({ clientId, clientSecret }, proj);
+      // await coll.updateOne(
+      //   { clientId, clientSecret },
+      //   {
+      //     $setOnInsert: {
+      //       createdAt: asIso(now),
+      //       tokenType: "Bearer",
+      //       scope: scopeIn,
+      //     },
+      //   },
+      //   { upsert: true }
+      // );
+      // doc = await coll.findOne({ clientId, clientSecret }, proj);
+
+      return res.status(401).json({
+        error: "invalid_client",
+        error_description: "Client credentials not found",
+      });
     }
 
     // Metrics
