@@ -51,6 +51,17 @@ app.get("/api/session/:SessionId/attendees", protectedController.getAttendance);
 app.get("/api/session/:SessionId/extendedoptions", protectedController.getExtendedOptions);
 app.get("/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
 
+// Basic URL
+app.post("/oauth/token", issueToken);
+app.post("/session", protectedController.createSession);
+app.put("/session/:SessionId", protectedController.updateSession);
+app.delete("/session/:SessionId", protectedController.cancelSession);
+app.post("/instructor", protectedController.addInstructor);
+app.get("/session/:SessionId/attendees", protectedController.getAttendance);
+app.get("/session/:SessionId/extendedoptions", protectedController.getExtendedOptions);
+app.get("/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
+
+
 // Folder-based two level endpoints
 app.post("/folder1/folder2/api/oauth/token", issueToken);
 app.post("/folder1/folder2/api/session", protectedController.createSession);
