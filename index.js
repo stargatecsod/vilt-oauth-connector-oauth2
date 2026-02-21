@@ -52,7 +52,6 @@ app.get("/api/session/:SessionId/extendedoptions", protectedController.getExtend
 app.get("/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
 
 // Basic URL
-app.post("/oauth/token", issueToken);
 app.post("/session", protectedController.createSession);
 app.put("/session/:SessionId", protectedController.updateSession);
 app.delete("/session/:SessionId", protectedController.cancelSession);
