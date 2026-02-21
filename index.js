@@ -52,6 +52,7 @@ app.get("/api/session/:SessionId/extendedoptions", protectedController.getExtend
 app.get("/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
 
 // Folder-based two level endpoints
+app.post("/folder1/folder2/api/oauth/token", issueToken);
 app.post("/folder1/folder2/api/session", protectedController.createSession);
 app.put("/folder1/folder2/api/session/:SessionId", protectedController.updateSession);
 app.delete("/folder1/folder2/api/session/:SessionId", protectedController.cancelSession);
@@ -61,6 +62,7 @@ app.get("/folder1/folder2/api/session/:SessionId/extendedoptions", protectedCont
 app.get("/folder1/folder2/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
 
 // Folder-based third level endpoints
+app.post("/folder1/folder2/folder3/api/oauth/token", issueToken);
 app.post("/folder1/folder2/folder3/api/session", protectedController.createSession);
 app.put("/folder1/folder2/folder3/api/session/:SessionId", protectedController.updateSession);
 app.delete("/folder1/folder2/folder3/api/session/:SessionId", protectedController.cancelSession);
