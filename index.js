@@ -30,6 +30,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 
 // OAuth Mock
 app.post("/oauth/token", issueToken);
+app.post("/api/oauth/token", issueToken);
 
 // Admin / Monitoring
 app.post("/admin/reset", admin.reset);
