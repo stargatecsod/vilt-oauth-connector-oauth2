@@ -51,7 +51,7 @@ app.get("/api/session/:SessionId/attendees", protectedController.getAttendance);
 app.get("/api/session/:SessionId/extendedoptions", protectedController.getExtendedOptions);
 app.get("/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
 
-// Folder-based endpoints
+// Folder-based two level endpoints
 app.post("/folder1/folder2/api/session", protectedController.createSession);
 app.put("/folder1/folder2/api/session/:SessionId", protectedController.updateSession);
 app.delete("/folder1/folder2/api/session/:SessionId", protectedController.cancelSession);
@@ -59,6 +59,15 @@ app.post("/folder1/folder2/api/instructor", protectedController.addInstructor);
 app.get("/folder1/folder2/api/session/:SessionId/attendees", protectedController.getAttendance);
 app.get("/folder1/folder2/api/session/:SessionId/extendedoptions", protectedController.getExtendedOptions);
 app.get("/folder1/folder2/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
+
+// Folder-based third level endpoints
+app.post("/folder1/folder2/folder3/api/session", protectedController.createSession);
+app.put("/folder1/folder2/folder3/api/session/:SessionId", protectedController.updateSession);
+app.delete("/folder1/folder2/folder3/api/session/:SessionId", protectedController.cancelSession);
+app.post("/folder1/folder2/folder3/api/instructor", protectedController.addInstructor);
+app.get("/folder1/folder2/folder3/api/session/:SessionId/attendees", protectedController.getAttendance);
+app.get("/folder1/folder2/folder3/api/session/:SessionId/extendedoptions", protectedController.getExtendedOptions);
+app.get("/folder1/folder2/folder3/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
 
 // Dev server only (Vercel imports the app instead)
 if (process.env.VERCEL !== "1") {
