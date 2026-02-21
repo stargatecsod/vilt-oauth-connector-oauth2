@@ -15,15 +15,15 @@ app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use((req, res, next) => {
-  const match = req.url.match(/^\/api\/[^/]+(\/.*)$/);
+// app.use((req, res, next) => {
+//   const match = req.url.match(/^\/api\/[^/]+(\/.*)$/);
 
-  if (match) {
-    req.url = "/api" + match[1];
-  }
+//   if (match) {
+//     req.url = "/api" + match[1];
+//   }
 
-  next();
-});
+//   next();
+// });
 
 // Health
 app.get("/health", (_req, res) => res.json({ ok: true }));
@@ -49,10 +49,16 @@ app.post("/api/instructor", protectedController.addInstructor);
 // Attendance and launch endpoints
 app.get("/api/session/:SessionId/attendees", protectedController.getAttendance);
 app.get("/api/session/:SessionId/extendedoptions", protectedController.getExtendedOptions);
-app.get(
-  "/api/session/:SessionId/user/:base64EncodedEmail/url",
-  protectedController.launchSession
-);
+app.get("/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
+
+// Folder-based endpoints
+app.post("/folder1/folder2/api/session", protectedController.createSession);
+app.put("/folder1/folder2/api/session/:SessionId", protectedController.updateSession);
+app.delete("/folder1/folder2/api/session/:SessionId", protectedController.cancelSession);
+app.post("/folder1/folder2/api/instructor", protectedController.addInstructor);
+app.get("/folder1/folder2/api/session/:SessionId/attendees", protectedController.getAttendance);
+app.get("/folder1/folder2/api/session/:SessionId/extendedoptions", protectedController.getExtendedOptions);
+app.get("/folder1/folder2/api/session/:SessionId/user/:base64EncodedEmail/url",protectedController.launchSession);
 
 // Dev server only (Vercel imports the app instead)
 if (process.env.VERCEL !== "1") {
