@@ -45,7 +45,7 @@ app.delete("/api/session/:SessionId", protectedController.cancelSession);
 
 // Instructor endpoints
 app.post("/api/instructor", protectedController.addInstructor);
-//app.put("/api/instructor", protectedController.updateInstructor);
+app.put("/api/instructor", protectedController.updateInstructor);
 
 // Attendance and launch endpoints
 app.get("/api/session/:SessionId/attendees", protectedController.getAttendance);
